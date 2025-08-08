@@ -1,0 +1,25 @@
+name: Cleanup Old Builds
+
+on:
+  workflow_dispatch:  
+  schedule:
+    - cron: '0 20 * * 0'  
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 删除旧的 workflow 运行记录
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          retain_days: 3            
+          keep_minimum_runs: 4     
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 删除旧版本发布（Releases 和标签）
+        uses: dev-drprasad/delete-older-releases@master
+        with:
+          keep_latest: 2          
+          delete_tags: true
+          repo: ${{ github.repository }}
+          token: ${{ secrets.GITHUB_TOKEN }}
