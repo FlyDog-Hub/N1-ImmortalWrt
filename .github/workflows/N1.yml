@@ -126,3 +126,16 @@ jobs:
           tag_name: ImmortalWrt_${{ github.run_number }}
           files: openwrt/bin/targets/armsr/armv8/*.img.xz
 
+      - name: 删除运行记录
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+         retain_days: 3
+         keep_minimum_runs: 4
+         token: ${{ env.GITHUB_TOKEN }}
+
+      - name: 删除的旧固件
+        uses: dev-drprasad/delete-older-releases@master
+        with:
+          keep_latest: 2
+          delete_tags : true
+
