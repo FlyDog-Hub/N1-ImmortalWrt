@@ -79,7 +79,7 @@ jobs:
 
       - name: 加载 N1 自定义配置
         run: |
-          rm -rf files .config
+          rm -rf openwrt/files openwrt/.config
           mv files .config openwrt/
 
       - name: SSH debug
