@@ -37,7 +37,7 @@ jobs:
             ${{ runner.os }}-immortalwrt-${{ env.REPO_BRANCH }}-
 
       - name: 检查action
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
@@ -114,7 +114,7 @@ jobs:
           SFE_FLOW: 0
 
       - name: 上传固件
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: N1-firmware-${{ github.run_number }}
           path: |
