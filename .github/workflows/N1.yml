@@ -1,4 +1,4 @@
-name: Build ImmortalWrt-24.10 for N1 (optimized)
+name: Build ImmortalWrt-24.10 for N1
 
 on:
   workflow_dispatch:
@@ -21,7 +21,6 @@ env:
   DIY_P1_SH: diy-1.sh
   DIY_P2_SH: diy-2.sh
   TZ: Asia/Shanghai
-  # ccache 设置
   CCACHE_DIR: /workdir/ccache
   USE_CCACHE: '1'
   CCACHE_MAXSIZE: 20G
