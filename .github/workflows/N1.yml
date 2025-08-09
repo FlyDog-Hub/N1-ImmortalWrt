@@ -1,10 +1,10 @@
-name: Build ImmortalWrt-24.10 for N1
+name: build ImmortalWrt-24.10 for N1
 
 on:
   workflow_dispatch:
     inputs:
       ssh:
-        description: 'SSH connection to Actions'
+        description: '是否连接 SSH 到 Actions'
         required: true
         default: 'false'
         type: choice
@@ -31,12 +31,12 @@ jobs:
     timeout-minutes: 720
 
     steps:
-    - name: "Checkout workflow repo"
+    - name: 检出工作流仓库
       uses: actions/checkout@v4
       with:
         fetch-depth: 1
 
-    - name: "Restore cache: dl"
+    - name: 恢复缓存：dl（源码包）
       uses: actions/cache@v4
       with:
         path: openwrt/dl
@@ -44,7 +44,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-openwrt-dl-${{ env.REPO_BRANCH }}-
 
-    - name: "Restore cache: staging_dir"
+    - name: 恢复缓存：staging_dir（工具链）
       uses: actions/cache@v4
       with:
         path: openwrt/staging_dir
@@ -52,7 +52,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-openwrt-staging-${{ env.REPO_BRANCH }}-
 
-    - name: "Restore cache: build_dir (partial)"
+    - name: 恢复缓存：build_dir（部分编译产物）
       uses: actions/cache@v4
       with:
         path: openwrt/build_dir
@@ -60,7 +60,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-openwrt-build-${{ env.REPO_BRANCH }}-
 
-    - name: "Restore cache: ccache"
+    - name: 恢复缓存：ccache
       uses: actions/cache@v4
       with:
         path: /workdir/ccache
@@ -68,7 +68,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-ccache-${{ env.REPO_BRANCH }}-
 
-    - name: "Release disk space"
+    - name: 释放磁盘空间
       uses: jlumbroso/free-disk-space@main
       with:
         tool-cache: true
@@ -79,7 +79,7 @@ jobs:
         docker-images: true
         swap-storage: true
 
-    - name: "Setup build environment (apt install)"
+    - name: 安装编译依赖环境
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
@@ -91,19 +91,19 @@ jobs:
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
 
-    - name: "Configure ccache"
+    - name: 配置 ccache
       run: |
         mkdir -p $CCACHE_DIR
         ccache --max-size=${CCACHE_MAXSIZE}
         ccache -s || true
 
-    - name: "Clone OpenWrt source (shallow)"
+    - name: 克隆源码
       working-directory: /workdir
       run: |
         git clone $REPO_URL -b $REPO_BRANCH --single-branch --depth=1 openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
-    - name: "Update & install feeds (run DIY scripts)"
+    - name: 执行 DIY 脚本并更新 feeds
       run: |
         chmod +x $DIY_P1_SH $DIY_P2_SH
         cd openwrt
@@ -116,16 +116,16 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
-    - name: "Load N1 custom config"
+    - name: 加载 N1 自定义配置
       run: |
         rm -rf openwrt/files openwrt/.config
         mv files .config openwrt/
 
-    - name: "Optional SSH connection to Actions"
+    - name: SSH 连接到 Actions
       uses: P3TERX/ssh2actions@main
       if: github.event.inputs.ssh == 'true'
 
-    - name: "Download packages (make download)"
+    - name: 下载软件包
       working-directory: ./openwrt
       run: |
         make defconfig
@@ -133,22 +133,22 @@ jobs:
         find dl -size -1k -exec ls -l {} \;
         find dl -size -1k -exec rm -f {} \;
 
-    - name: "Build N1 firmware"
+    - name: 编译 N1 固件
       env:
         USE_CCACHE: '1'
         CCACHE_DIR: ${{ env.CCACHE_DIR }}
       run: |
         chmod -R 755 openwrt
         cd openwrt
-        echo -e "$(nproc) thread compile"
+        echo -e "$(nproc) 线程编译"
         make -j$(( $(nproc) + 1 )) || make -j1 V=s
 
-    - name: "Show ccache stats"
+    - name: 显示 ccache 统计信息
       if: always()
       run: |
         ccache -s || true
 
-    - name: "Pack ARM kernel"
+    - name: 打包 ARM 内核
       uses: unifreq/openwrt_packit@master
       env:
         OPENWRT_ARMVIRT: openwrt/bin/targets/armsr/armv8/*rootfs.tar.gz
@@ -161,7 +161,7 @@ jobs:
         SW_FLOWOFFLOAD: 0
         SFE_FLOW: 0
 
-    - name: "Release firmware"
+    - name: 发布固件
       uses: softprops/action-gh-release@master
       with:
         tag_name: ImmortalWrt_${{ env.PACKAGED_OUTPUTDATE }}
@@ -173,14 +173,14 @@ jobs:
           账户: root
           密码: password
 
-    - name: "Cleanup workflow runs"
+    - name: 清理运行记录
       uses: Mattraks/delete-workflow-runs@main
       with:
         retain_days: 3
         keep_minimum_runs: 4
         token: ${{ env.GITHUB_TOKEN }}
 
-    - name: "Delete older releases"
+    - name: 删除旧固件
       uses: dev-drprasad/delete-older-releases@master
       with:
         keep_latest: 2
