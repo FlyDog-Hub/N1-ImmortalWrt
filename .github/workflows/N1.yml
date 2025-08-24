@@ -15,7 +15,8 @@ on:
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   REPO_URL: https://github.com/immortalwrt/immortalwrt
-  REPO_REF: v24.10.2
+  REPO_REF: master
+  VERSION: v24.10.2
   TZ: Asia/Shanghai
 
 jobs:
@@ -92,7 +93,7 @@ jobs:
       uses: unifreq/openwrt_packit@master
       env:
         OPENWRT_ARMVIRT: openwrt/bin/targets/armsr/armv8/*rootfs.tar.gz
-        OPENWRT_VER: ${{ env.REPO_REF }}
+        OPENWRT_VER: ${{ VERSION }}
         KERNEL_REPO_URL: breakingbadboy/OpenWrt
         KERNEL_VERSION_NAME: 6.6.y
         PACKAGE_SOC: diy
