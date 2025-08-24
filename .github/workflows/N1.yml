@@ -11,7 +11,9 @@ on:
         options:
           - true
           - false
-
+  schedule:
+    - cron: '0 16 * * 0'
+       
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   REPO_URL: https://github.com/immortalwrt/immortalwrt
