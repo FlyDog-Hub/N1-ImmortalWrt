@@ -2,4 +2,4 @@
 
 # 添加包
 git clone --depth=1 https://github.com/ophub/luci-app-amlogic package/amlogic
-git clone https://github.com/OpenListTeam/OpenList-OpenWRT package/openlist
+git clone --depth=1 https://github.com/OpenListTeam/OpenList-OpenWRT package/openlist
